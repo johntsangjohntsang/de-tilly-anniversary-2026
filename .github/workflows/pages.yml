@@ -1,0 +1,36 @@
+name: Publish anniversary gallery
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore verified website files
+        run: |
+          python - <<'PY'
+          import pathlib, hashlib, io, zipfile
+          payload=pathlib.Path('website.zip').read_bytes()
+          assert hashlib.sha256(payload).hexdigest()=='ab441ca321723706bab7f0c46504edd7d67336432c620ed88641ab739313330d'
+          with zipfile.ZipFile(io.BytesIO(payload)) as z:
+              assert z.testzip() is None
+              z.extractall('_site')
+          PY
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+        id: deployment
