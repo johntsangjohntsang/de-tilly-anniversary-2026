@@ -28,7 +28,7 @@ jobs:
               assert z.testzip() is None
               z.extractall('_site')
           update=pathlib.Path('downloads-update.zip').read_bytes()
-          assert hashlib.sha256(update).hexdigest()=='6dc87c4e28f24aeaef15ee46f7df05cf70b0f97443cee65f50a7fc311f445b27'
+          assert hashlib.sha256(update).hexdigest()==pathlib.Path('downloads-update.sha256').read_text().split()[0]
           with zipfile.ZipFile(io.BytesIO(update)) as patch:
               assert patch.testzip() is None
               patch.extractall('_site')
@@ -39,4 +39,3 @@ jobs:
           path: _site
       - uses: actions/deploy-pages@v4
         id: deployment
-
