@@ -27,6 +27,11 @@ jobs:
           with zipfile.ZipFile(io.BytesIO(payload)) as z:
               assert z.testzip() is None
               z.extractall('_site')
+          update=pathlib.Path('downloads-update.zip').read_bytes()
+          assert hashlib.sha256(update).hexdigest()=='6dc87c4e28f24aeaef15ee46f7df05cf70b0f97443cee65f50a7fc311f445b27'
+          with zipfile.ZipFile(io.BytesIO(update)) as patch:
+              assert patch.testzip() is None
+              patch.extractall('_site')
           PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
@@ -34,3 +39,4 @@ jobs:
           path: _site
       - uses: actions/deploy-pages@v4
         id: deployment
+
